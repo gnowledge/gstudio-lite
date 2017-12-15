@@ -1,32 +1,73 @@
 {% load new_tags %}
+{% load static %}
+
 
 <!DOCTYPE html>
 <html lang="en" >
     <meta charset="utf-8">
     <body>
-    <form id="search_form" name="search_form" method="POST" action="{% url 'search' %}">
+    <form id="search_form" name="search_form" method="POST" action="{% url 'search' %}" >
 	{% csrf_token %}
-     <ul style="text-decoration:none;list-style: none;">
 
-             <!--<input type="text" id="Search_Text" name="Search_Text">-->
-        <label for="SearchText" class="small-text-left large-text-right">
-               Enter a text:
-            </label>
-        <input type="text" id="SearchText" name="SearchText">
-        <li>
+
+  {{ form.non_field_errors }}
+
+  {% for hidden_field in form.hidden_fields %}
+    {{ hidden_field.errors }}
+    {{ hidden_field }}
+  {% endfor %}
+       <table border="1">
+    {% for field in form.visible_fields %}
+      <tr>
+        <th>{{ field.label_tag }}</th>
+        <td>
+          {{ field.errors }}
+          {{ field }}
+          {{ field.help_text }}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
             <!--<button type="button" id="Search_Button" name="Search_Button"> Search </button>-->
                 <input type="submit" value="Search" />
-        </li>
-     </ul>
+
     </form>
 
     <table>
         <tr><td>documents found: {{total_hits}}</td></tr>
+
+         <tr>
              {% for doc in hits %}
 
-        <tr> <td> ID :{{ doc|get:"_id" }}</td><td>content: {{doc|get:"_source"|get:"content"}} </td></tr>
-                {% endfor%}
+
+            <!--<td> ID :{{ doc|get:"_id" }}</td><td>content: {{ doc|get:"_source"|get:"content"}} </td>-->
+
+            {% with doc|get:"_source"|get:"if_file"|get:"thumbnail"|get:"relurl" as thumbnail %}
+                {% with doc|get:"_source"|get:"if_file"|get:"original"|get:"relurl" as original %}
+                {% with doc|get:"_source"|get:"if_file"|get:"mime_type" as mime_type %}
+                {% endwith%}
+                {% with doc|get:"_source"|get:"if_file"|get:"mimetype" as mimetype %}
+
+                {% with doc|get:"_source"|get:"if_file"|get:"mime_type" as mime_type %}
+
+
+                {% if  mime_type == "audio/mpeg" or  mimetype == "audio/mpeg" %}
+                <td><a href="{% static original %}"><img src="{% static 'mp3.png' %}" height="100px" width="90px" /><br/>{{ doc|get:"_source"|get:"name"}}</a></td>
+                {% elif  mime_type == 'application/pdf' or  mimetype == 'application/pdf' %}
+                <td><a href="{% static original %}"><img src="{% static 'pdf_icon.jpeg' %}"  height="100px" width="90px"/><br/>{{ doc|get:"_source"|get:"name"}}</a></td>
+                {% else %}
+                <td><a href="{% static original %}"><img src="{% static thumbnail %}" /><br/>{{ doc|get:"_source"|get:"name"}}</a></td>
+                {% endif %}
+                {% endwith %}
+             {% endwith%}
+             {% endwith%}
+             {% endwith %}
+
+            {% endfor%}
+        </tr>
 
     </table>
+
+
     </body>
 </html>
