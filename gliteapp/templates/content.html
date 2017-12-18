@@ -1,0 +1,96 @@
+{% load new_tags %}
+{% load static %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div class="container">
+	<section>
+
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="panel panel-info ">
+					<div class="panel-heading">
+						<br/>
+
+						<form id="search_form" name="search_form" method="POST" action="{% url 'search' %}" >
+							{% csrf_token %}
+
+
+							{{ form.non_field_errors }}
+
+							{% for hidden_field in form.hidden_fields %}
+							{{ hidden_field.errors }}
+							{{ hidden_field }}
+							{% endfor %}
+						
+								{% for field in form.visible_fields %}
+								
+									{{ field.label_tag }}
+				
+										{{ field.errors }}
+										{{ field }}
+										{{ field.help_text }}
+									
+							
+								{% endfor %}
+							
+						<div class="form-group">
+						
+							<button type="submit" class="btn btn-default" value="Search" placeholder="Search">Submit</button>
+
+
+							<!-- <input type="submit" value="Search" /> -->
+							<p>Total documents found: {{total_hits}}</p>
+						</div>	
+						</form>
+
+					</div>
+
+					<div class="panel-body">
+						<div class="col-md-12">	
+							<div class="row ">
+								{% for doc in hits %}	
+								<div class="col-xs-24 col-sm-4 col-md-2" style="max-height:220" class="thumbnail-box">
+									<div class="thumbnail">
+										{% with doc|get:"_source"|get:"if_file"|get:"thumbnail"|get:"relurl" as thumbnail %}
+										{% with doc|get:"_source"|get:"if_file"|get:"original"|get:"relurl" as original %}
+										{% with doc|get:"_source"|get:"if_file"|get:"mime_type" as mime_type %}
+										{% endwith%}
+										{% with doc|get:"_source"|get:"if_file"|get:"mimetype" as mimetype %}
+
+										{% with doc|get:"_source"|get:"if_file"|get:"mime_type" as mime_type %}
+
+										<div class="caption">
+											{% if  mime_type == "audio/mpeg" or  mimetype == "audio/mpeg" %}
+											<a href="{% static original %}"><img src="{% static 'images/mp3.jpg' %}" class="img-responsive" width="100%" /><hr/><h5>{{ doc|get:"_source"|get:"name"}}</h5></a>
+											{% elif  mime_type == 'application/pdf' or  mimetype == 'application/pdf' %}
+											<a href="{% static original %}"><img src="{% static 'pdf_icon.png' %}"  class="img-responsive"/><br/><h5>{{ doc|get:"_source"|get:"name"}}</h5></a>
+											{% else %}
+											<a href="{% static original %}"><img src="{% static thumbnail %}" class="img-responsive"/><br/><h5>{{ doc|get:"_source"|get:"name"}}</h5></a>
+											{% endif %}
+											{% endwith %}
+											{% endwith %}
+											{% endwith %}
+											{% endwith %}
+											{% if forloop.counter|divisibleby:5 %}
+
+                        {% endif %}
+										</div>
+									</div>
+								</div>	
+								{% endfor %}
+							</div>
+						</div>
+					</div>			
+				</div>
+			</div>	
+		</div>	
+	</section>
+</div>
+</body>
+</html>
